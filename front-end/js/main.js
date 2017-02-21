@@ -1,29 +1,30 @@
 require('whatwg-fetch')
+require('babel-polyfill')
 
-const
-    R = require('ramda'),
-    tap = x => { console.log(x); return x },
-    React = require('react'),
-    ReactDOM = require('react-dom'),
-    {createStore} = require('redux'),
-    reducer = (state = '', action) => {
-        switch(action.type) {
-            case 'ADD_TEXT':
-                return action.text
-            default:
-                return state
-        }
-    },
-    store = createStore(reducer),
-    render = () =>
-        ReactDOM.render(
-            <div>
-                <p>{store.getState()}</p>
-                <input
-                    type="text"
-                    onChange={({target:{value: text}}) => store.dispatch({type: 'ADD_TEXT', text})}/>
-            </div>,
-            document.getElementById('root'))
+function resolveAfter2Seconds(x) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(x)
+        }, 2000)
+    })
+}
 
-store.subscribe(render)
-render()
+async function add1(x) {
+    var a = resolveAfter2Seconds(20)
+    var b = resolveAfter2Seconds(30)
+    return x + await a + await b
+}
+
+add1(10).then(v => {
+    console.log(v)    // prints 60 after 2 seconds.
+})
+
+async function add2(x) {
+    var a = await resolveAfter2Seconds(20)
+    var b = await resolveAfter2Seconds(30)
+    return x + a + b
+}
+
+add2(10).then(v => {
+    console.log(v)    // prints 60 after 4 seconds.
+})
